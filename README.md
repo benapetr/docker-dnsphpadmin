@@ -6,6 +6,11 @@ The image builds dnsphpadmin 2.0.2 by default:
 ./build.sh
 ```
 
+The helper scripts use Docker when available and fall back to Podman. To force one engine:
+```
+CONTAINER_ENGINE=podman ./build.sh
+```
+
 To build a different dnsphpadmin release, override the build argument:
 ```
 DNSPHPADMIN_VERSION=2.0.1 ./build.sh

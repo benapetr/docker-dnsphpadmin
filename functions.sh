@@ -1,10 +1,37 @@
 #=============================================================================
 #
-#  Common Functions for managing docker containers 
+#  Common Functions for managing docker/podman containers
 #
 #
 #=============================================================================
 FVER="20211102"     #-- version of functions
+
+#-----------------------------------------------------------------------------
+# Select container engine.
+# Override with CONTAINER_ENGINE=docker or CONTAINER_ENGINE=podman.
+#-----------------------------------------------------------------------------
+detect_container_engine(){
+  if [ -n "${CONTAINER_ENGINE:-}" ] ; then
+    if command -v "$CONTAINER_ENGINE" >/dev/null 2>&1 ; then
+      return 0
+    fi
+    derr "[not ok] - container engine '$CONTAINER_ENGINE' was requested but was not found"
+    exit 1
+  fi
+
+  if command -v docker >/dev/null 2>&1 ; then
+    CONTAINER_ENGINE=docker
+  elif command -v podman >/dev/null 2>&1 ; then
+    CONTAINER_ENGINE=podman
+  else
+    derr "[not ok] - neither docker nor podman was found"
+    exit 1
+  fi
+
+  export CONTAINER_ENGINE
+  dlog "[ok] - using container engine: $CONTAINER_ENGINE"
+}
+# function detect_container_engine
 
 #-----------------------------------------------------------------------------
 #  Output debugging/logging message
@@ -92,7 +119,7 @@ read_secret(){
 #-----------------------------------------------------------------------------
 is_run_container(){
   local IMG_N="$1"
-  local IMG_ID=$(docker ps -qf "name=^$IMG_N$")
+  local IMG_ID=$($CONTAINER_ENGINE ps -qf "name=^$IMG_N$")
   if [ "x$IMG_ID" != "x" ] ; then
         # 0 = true
         return 0
@@ -110,10 +137,10 @@ is_run_container(){
 #-----------------------------------------------------------------------------
 stop_container(){
   local IMG_N="$1"
-  local IMG_ID=$(docker ps -qf "name=^$IMG_N$")
+  local IMG_ID=$($CONTAINER_ENGINE ps -qf "name=^$IMG_N$")
   if [ "x$IMG_ID" != "x" ] ; then
     dlog "[ok] - stopping $IMG_N ($IMG_ID)"
-    docker stop $IMG_ID
+    $CONTAINER_ENGINE stop $IMG_ID
 	is_good "[ok] - stopped $IMG_N" \
 	"[not ok] - ERROR stopping $IMG_N"
   fi
@@ -127,10 +154,10 @@ stop_container(){
 #-----------------------------------------------------------------------------
 remove_container(){
   local IMG_N="$1"
-  local IMG_ID=$(docker ps -qaf "name=^$IMG_N$")
+  local IMG_ID=$($CONTAINER_ENGINE ps -qaf "name=^$IMG_N$")
   if [ "x$IMG_ID" != "x" ] ; then
     dlog "[ok] - removing $IMG_N ($IMG_ID)"
-    docker rm $IMG_ID
+    $CONTAINER_ENGINE rm $IMG_ID
 	is_good "[ok] - removed $IMG_N" \
 	"[not ok] - ERROR removing $IMG_N"
   fi

@@ -12,11 +12,12 @@ SVER="20231119"
 [[ $(uname -m) =~ ^armv7 ]] && ARCH="armv7-" || ARCH=""
 
 source functions.sh      #-- Use common functions
+detect_container_engine
 
 stop_container   $IMG_NAME
 remove_container $IMG_NAME
 
-docker run -d \
+$CONTAINER_ENGINE run -d \
   --name $IMG_NAME \
   -p 8080:80/tcp \
   -p 8445:443/tcp \
