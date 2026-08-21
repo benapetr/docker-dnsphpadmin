@@ -1,14 +1,16 @@
 FROM alpine:latest
 
 ARG BUILD_DATE
+ARG DNSPHPADMIN_VERSION=2.0.2
 #-- default environment variables
 ENV VERBOSE=1
-ENV URL_DNSPHPADMIN=https://github.com/benapetr/dnsphpadmin/releases/download/1.10.0/dnsphpadmin_1.10.0.tar.gz
+ENV DNSPHPADMIN_VERSION=${DNSPHPADMIN_VERSION}
+ENV URL_DNSPHPADMIN=https://github.com/benapetr/dnsphpadmin/releases/download/${DNSPHPADMIN_VERSION}/dnsphpadmin_${DNSPHPADMIN_VERSION}.tar.gz
 ENV DIR_CODE=/var/dnsphpadmin
 ENV DIR_CONF=/etc/dnsphpadmin
 
-RUN apk --update --no-cache add apache2 apache2-ssl ssmtp bind-tools bind-libs \
-  php-apache2 php-session php-openssl php-json php-xml php-gd php-ldap wget
+RUN apk --update --no-cache add apache2 apache2-ssl ssmtp bind-tools bind-libs ca-certificates wget \
+  php84-apache2 php84-curl php84-gd php84-intl php84-ldap php84-mbstring php84-openssl php84-session php84-xml
 
 #-- Redirect logs
 RUN ln -sf /dev/stdout /var/log/apache2/access.log && ln -sf /dev/stderr /var/log/apache2/error.log
@@ -21,7 +23,9 @@ LABEL maintainer="Eugene Taylashev" \
 
 #-- do preparations
 RUN mkdir $DIR_CODE $DIR_CONF
-RUN wget -qO- $URL_DNSPHPADMIN | tar -xvz --strip-components=1 -C $DIR_CODE
+RUN wget -O /tmp/dnsphpadmin.tar.gz $URL_DNSPHPADMIN \
+  && tar -xzf /tmp/dnsphpadmin.tar.gz --strip-components=1 -C $DIR_CODE \
+  && rm -f /tmp/dnsphpadmin.tar.gz
 
 #-- ports exposed
 EXPOSE 80

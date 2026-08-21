@@ -126,7 +126,7 @@ if [ ! -s ${DIR_CONF}/httpd.conf ] ; then
 
   #-- Add directory params
   cat <<- EOC >>${DIR_CONF}/httpd.conf
-<Directory "/var/dnsphpadmin">
+<Directory "${DIR_CODE}">
     Options Indexes FollowSymLinks
     AllowOverride None
     Require all granted
@@ -149,7 +149,7 @@ fi
 if [ -s ${DIR_CONF}/ssl.conf ] ; then
 
   #-- remove the original
-  rm /etc/apache2/conf.d/ssl.conf
+  rm -f /etc/apache2/conf.d/ssl.conf
   is_good "[ok] - removed the original ssl.conf" \
   "[not ok] - removing the original ssl.conf"
 
@@ -160,13 +160,13 @@ fi
 
 
 
-CONF_D=/var/dnsphpadmin/config.php
+CONF_D=${DIR_CODE}/config.php
 
 #-- Verify that DNSphpAdmin configuration file exists in the DIR_CONF
 if [ ! -s ${DIR_CONF}/config.php ] ; then
 
   #-- copy original
-  cp /var/dnsphpadmin/config.default.php ${DIR_CONF}/config.php
+  cp ${DIR_CODE}/config.default.php ${DIR_CONF}/config.php
   is_good "[ok] - copied config.php" \
   "[not ok] - copying config.php"
 else
@@ -216,4 +216,3 @@ is_good "[ok] - Apache HTTPD configuration is good" \
 dlog "[ok] - strating Apache HTTPD: "
 exec httpd -E /dev/stderr -f ${DIR_CONF}/httpd.conf -DFOREGROUND "$@"
 derr "[not ok] - finish of entrypoint.sh"
-
