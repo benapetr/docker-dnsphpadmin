@@ -1,7 +1,7 @@
 # docker-dnsphpadmin
 This project is to wrap the [dnsphpadmin](https://github.com/benapetr/dnsphpadmin) tool into a Docker image.
 
-The image builds dnsphpadmin 2.0.2 by default:
+The image builds dnsphpadmin 2.0.4 by default:
 ```
 ./build.sh
 ```

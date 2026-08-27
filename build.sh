@@ -5,7 +5,7 @@ set -e
 [[ $(uname -m) =~ ^armv7 ]] && ARCH="armv7-" || ARCH=""
 
 VERBOSE=${VERBOSE:-1}
-DNSPHPADMIN_VERSION=${DNSPHPADMIN_VERSION:-2.0.2}
+DNSPHPADMIN_VERSION=${DNSPHPADMIN_VERSION:-2.0.4}
 source functions.sh      #-- Use common functions
 detect_container_engine
 
